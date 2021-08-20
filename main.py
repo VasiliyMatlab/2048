@@ -95,6 +95,41 @@ def move_right(mas: list) -> list:
                 mas[i].insert(0, 0)
     return mas
 
+# Движение ячеек вверх
+def move_up(mas: list) -> list:
+    for j in range(SIZE):
+        col = list()
+        for i in range(SIZE):
+            if mas[i][j] != 0:
+                col.append(mas[i][j])
+        while len(col) != SIZE:
+            col.append(0)
+        for i in range(SIZE - 1):
+            if col[i] == col[i+1] and col[i] != 0:
+                col[i] *= 2
+                col.pop(i+1)
+                col.append(0)
+        for i in range(SIZE):
+            mas[i][j] = col[i]
+    return mas
+
+# Движение ячеек вниз
+def move_down(mas: list) -> list:
+    for j in range(SIZE):
+        col = list()
+        for i in range(SIZE):
+            if mas[i][j] != 0:
+                col.append(mas[i][j])
+        while len(col) != SIZE:
+            col.insert(0, 0)
+        for i in range(SIZE - 1, 0, -1):
+            if col[i] == col[i-1] and col[i] != 0:
+                col[i] *= 2
+                col.pop(i-1)
+                col.insert(0, 0)
+        for i in range(SIZE):
+            mas[i][j] = col[i]
+    return mas
 
 # Отрисовка интерфейса
 def draw_interface():
@@ -136,6 +171,10 @@ if __name__ == "__main__":
                     mas = move_left(mas)
                 elif event.key == pygame.K_RIGHT:
                     mas = move_right(mas)
+                elif event.key == pygame.K_UP:
+                    mas = move_up(mas)
+                elif event.key == pygame.K_DOWN:
+                    mas = move_down(mas)
                 empty = get_empty_list(mas)
                 random.shuffle(empty)
                 random_num = empty.pop()
