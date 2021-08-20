@@ -68,6 +68,8 @@ class Test_2048(unittest.TestCase):
         mas = [[0]*SIZE for n in range(SIZE)]
         self.assertAlmostEqual(mas, move_left(mas))
         self.assertAlmostEqual(mas, move_right(mas))
+        self.assertAlmostEqual(mas, move_up(mas))
+        self.assertAlmostEqual(mas, move_down(mas))
     
     def test_11(self):
         mas = [[0]*SIZE for n in range(SIZE)]
@@ -136,6 +138,75 @@ class Test_2048(unittest.TestCase):
             rez[i][SIZE-2] = 4
             rez[i][SIZE-1] = 8
         self.assertAlmostEqual(rez, move_right(mas))
+    
+    def test_17(self):
+        mas = [[0]*SIZE for n in range(SIZE)]
+        for k in range(SIZE):
+            number = k*SIZE + (k+1)
+            i, j = get_index_from_number(number)
+            mas[i][j] = 2
+        rez = [[0]*SIZE for n in range(SIZE)]
+        for j in range(SIZE):
+            rez[0][j] = 2
+        self.assertAlmostEqual(rez, move_up(mas))
+    
+    def test_18(self):
+        mas = [[2]*SIZE for n in range(SIZE)]
+        half = SIZE // 2
+        rez = [[0]*SIZE for n in range(SIZE)]
+        for i in range(half):
+            for j in range(SIZE):
+                rez[i][j] = 4
+        if SIZE % 2 == 1:
+            for j in range(SIZE):
+                rez[half][j] = 2
+        self.assertAlmostEqual(rez, move_up(mas))
+    
+    def test_19(self):
+        mas = [[0]*SIZE for n in range(SIZE)]
+        half = SIZE // 2
+        rez = [[0]*SIZE for n in range(SIZE)]
+        for j in range(SIZE):
+            mas[half-1][j] = 4
+            mas[SIZE-1][j] = 8
+            rez[0][j] = 4
+            rez[1][j] = 8
+        self.assertAlmostEqual(rez, move_up(mas))
+    
+    def test_20(self):
+        mas = [[0]*SIZE for n in range(SIZE)]
+        for k in range(SIZE):
+            number = k*SIZE + (k+1)
+            i, j = get_index_from_number(number)
+            mas[i][j] = 2
+        rez = [[0]*SIZE for n in range(SIZE)]
+        for j in range(SIZE):
+            rez[SIZE-1][j] = 2
+        self.assertAlmostEqual(rez, move_down(mas))
+    
+    def test_21(self):
+        mas = [[2]*SIZE for n in range(SIZE)]
+        half = SIZE // 2
+        rez = [[0]*SIZE for n in range(SIZE)]
+        for i in range(SIZE-1, half-1, -1):
+            for j in range(SIZE):
+                rez[i][j] = 4
+        if SIZE % 2 == 1:
+            for j in range(SIZE):
+                rez[half][j] = 2
+        self.assertAlmostEqual(rez, move_down(mas))
+    
+    def test_22(self):
+        mas = [[0]*SIZE for n in range(SIZE)]
+        half = SIZE // 2
+        rez = [[0]*SIZE for n in range(SIZE)]
+        for j in range(SIZE):
+            mas[0][j] = 4
+            mas[half][j] = 8
+            rez[SIZE-2][j] = 4
+            rez[SIZE-1][j] = 8
+        self.assertAlmostEqual(rez, move_down(mas))
+
 
 tests = {
     1:  f"Неверное значение константы {SIZE}",
@@ -147,13 +218,19 @@ tests = {
     7:   "Функция 'is_zero_in_mas' неверно определяет наличие нулей в нулевом массиве",
     8:   "Функция 'is_zero_in_mas' неверно определяет наличие нуля среди ненулевых элементов в массиве",
     9:   "Функция 'is_zero_in_mas' неверно определяет отсутствие нулей в ненулевом массиве",
-    10:  "Ошибка ячеек в одной из функций 'move_[left/right]' при нулевом массиве",
+    10:  "Ошибка ячеек в одной из функций 'move_[left/right/up/down]' при нулевом массиве",
     11:  "Ошибка движения ячеек в функции 'move_left' при диагональном массиве",
     12:  "Ошибка движения/складывания ячеек в функции 'move_left' при ненулевом однородном массиве",
     13:  "Ошибка движения/нескладывания ячеек в функции 'move_left' при заполнении массива такими значениями, сложение которых невозможно",
     14:  "Ошибка движения ячеек в функции 'move_right' при диагональном массиве",
     15:  "Ошибка движения/складывания ячеек в функции 'move_right' при ненулевом однородном массиве",
-    16:  "Ошибка движения/нескладывания ячеек в функции 'move_right' при заполнении массива такими значениями, сложение которых невозможно"
+    16:  "Ошибка движения/нескладывания ячеек в функции 'move_right' при заполнении массива такими значениями, сложение которых невозможно",
+    17:  "Ошибка движения ячеек в функции 'move_up' при диагональном массиве",
+    18:  "Ошибка движения/складывания ячеек в функции 'move_up' при ненулевом однородном массиве",
+    19:  "Ошибка движения/нескладывания ячеек в функции 'move_up' при заполнении массива такими значениями, сложение которых невозможно",
+    20:  "Ошибка движения ячеек в функции 'move_down' при диагональном массиве",
+    21:  "Ошибка движения/складывания ячеек в функции 'move_down' при ненулевом однородном массиве",
+    22:  "Ошибка движения/нескладывания ячеек в функции 'move_down' при заполнении массива такими значениями, сложение которых невозможно"
 }
 
 
