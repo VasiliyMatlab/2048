@@ -131,6 +131,14 @@ def move_down(mas: list) -> list:
             mas[i][j] = col[i]
     return mas
 
+# Проверка условия, можно ли совершить какое-либо движение
+def can_move(mas: list) -> bool:
+    for i in range(SIZE - 1):
+        for j in range(SIZE - 1):
+            if mas[i][j] == mas[i][j+1] or mas[i][j] == mas[i+1][j]:
+                return True
+    return False
+
 # Отрисовка интерфейса
 def draw_interface():
     pygame.draw.rect(screen, WHITE, TITLE_RECT)
@@ -142,7 +150,8 @@ def draw_interface():
             text = font.render(str(value), True, BLACK)
             w = col*SIZE_BLOCK + (col+1)*MARGIN
             h = row*SIZE_BLOCK + (row+1)*MARGIN + SIZE_BLOCK
-            pygame.draw.rect(screen, COLORS[value], (w,h, SIZE_BLOCK,SIZE_BLOCK))
+            pygame.draw.rect(screen, COLORS[value], \
+                (w,h, SIZE_BLOCK,SIZE_BLOCK))
             if value != 0:
                 font_w, font_h = text.get_size()
                 text_x = w + (SIZE_BLOCK-font_w)/2
@@ -161,7 +170,7 @@ if __name__ == "__main__":
     draw_interface()
     pygame.display.update()
 
-    while is_zero_in_mas(mas):
+    while is_zero_in_mas(mas) or can_move(mas):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -175,6 +184,8 @@ if __name__ == "__main__":
                     mas = move_up(mas)
                 elif event.key == pygame.K_DOWN:
                     mas = move_down(mas)
+                else:
+                    continue
                 empty = get_empty_list(mas)
                 random.shuffle(empty)
                 random_num = empty.pop()
