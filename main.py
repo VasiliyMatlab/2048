@@ -4,10 +4,13 @@ import pygame
 
 
 COLORS = {
-    0: (130, 130, 130),
-    2: (255, 255, 255),
-    4: (255, 255, 128),
-    8: (255, 255, 0)
+    0:  (130, 130, 130),
+    2:  (255, 255, 255),
+    4:  (255, 255, 128),
+    8:  (255, 255, 0),
+    16: (255, 235, 255),
+    32: (255, 235, 128),
+    64: (255, 235, 0)
 }
 WHITE = (255, 255, 255)
 GRAY  = (130, 130, 130)
@@ -62,6 +65,37 @@ def insert_2_or_4(mas: list, x: int, y: int) -> list:
         mas[x][y] = 4
     return mas
 
+# Движение ячеек влево
+def move_left(mas: list) -> list:
+    for row in mas:
+        while 0 in row:
+            row.remove(0)
+        while len(row) != SIZE:
+            row.append(0)
+    for i in range(SIZE):
+        for j in range(SIZE - 1):
+            if mas[i][j] == mas[i][j+1] and mas[i][j] != 0:
+                mas[i][j] *= 2
+                mas[i].pop(j+1)
+                mas[i].append(0)
+    return mas
+
+# Движение ячеек вправо
+def move_right(mas: list) -> list:
+    for row in mas:
+        while 0 in row:
+            row.remove(0)
+        while len(row) != SIZE:
+            row.insert(0, 0)
+    for i in range(SIZE):
+        for j in range(SIZE-1, 0, -1):
+            if mas[i][j] == mas[i][j-1] and mas[i][j] != 0:
+                mas[i][j] *= 2
+                mas[i].pop(j-1)
+                mas[i].insert(0, 0)
+    return mas
+
+
 # Отрисовка интерфейса
 def draw_interface():
     pygame.draw.rect(screen, WHITE, TITLE_RECT)
@@ -98,7 +132,10 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit(0)
             elif event.type == pygame.KEYDOWN:
-                # input()
+                if event.key == pygame.K_LEFT:
+                    mas = move_left(mas)
+                elif event.key == pygame.K_RIGHT:
+                    mas = move_right(mas)
                 empty = get_empty_list(mas)
                 random.shuffle(empty)
                 random_num = empty.pop()

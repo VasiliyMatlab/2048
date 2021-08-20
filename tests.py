@@ -26,23 +26,23 @@ class Test_2048(unittest.TestCase):
 
     def test_3(self):
         mas = [[0]*SIZE for n in range(SIZE)]
-        empty = list(range(1, SIZE*SIZE + 1))
-        self.assertAlmostEqual(empty, get_empty_list(mas))
+        rez = list(range(1, SIZE*SIZE + 1))
+        self.assertAlmostEqual(rez, get_empty_list(mas))
     
     def test_4(self):
         mas = [[0]*SIZE for n in range(SIZE)]
         for i in range(SIZE):
             for j in range(SIZE):
                 mas[i][j] = 1
-                empty = list(range(1, SIZE*SIZE + 1))
-                empty.remove(get_number_from_index(i, j))
-                self.assertAlmostEqual(empty, get_empty_list(mas))
+                rez = list(range(1, SIZE*SIZE + 1))
+                rez.remove(get_number_from_index(i, j))
+                self.assertAlmostEqual(rez, get_empty_list(mas))
                 mas[i][j] = 0
     
     def test_5(self):
         mas = [[1]*SIZE for n in range(SIZE)]
-        empty = list()
-        self.assertAlmostEqual(empty, get_empty_list(mas))
+        rez = list()
+        self.assertAlmostEqual(rez, get_empty_list(mas))
     
     def test_6(self):
         mas = [[0]*SIZE for n in range(SIZE)]
