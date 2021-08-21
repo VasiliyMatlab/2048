@@ -2,20 +2,28 @@ import sys
 import random
 import pygame
 import copy
+import json
+import os
 from database import get_best, insert_result
 
 
 COLORS = {
-    0:  (130, 130, 130),
-    2:  (255, 255, 255),
-    4:  (255, 255, 128),
-    8:  (255, 255, 0),
-    16: (255, 235, 255),
-    32: (255, 235, 128),
-    64: (255, 235, 0),
-    128: (255, 215, 255),
-    256: (255, 215, 128),
-    512: (255, 215, 0)
+    0:      (130, 130, 130),
+    2:      (255, 255, 255),
+    4:      (255, 255, 128),
+    8:      (255, 255, 0  ),
+    16:     (255, 235, 255),
+    32:     (255, 235, 128),
+    64:     (255, 235, 0  ),
+    128:    (255, 215, 255),
+    256:    (255, 215, 128),
+    512:    (255, 215, 0  ),
+    1024:   (255, 195, 255),
+    2048:   (255, 195, 128),
+    4096:   (255, 195, 0  ),
+    8192:   (255, 175, 255),
+    16384:  (255, 175, 128),
+    32768:  (255, 175, 0  )
 }
 ORANGE = (255, 127, 0)
 WHITE = (255, 255, 255)
@@ -157,8 +165,10 @@ def can_move(mas: list) -> bool:
         for j in range(SIZE - 1):
             if mas[i][j] == mas[i][j+1] or mas[i][j] == mas[i+1][j]:
                 return True
-    if mas[SIZE-1][SIZE-1] == mas[SIZE-1][SIZE-2] or mas[SIZE-1][SIZE-1] == mas[SIZE-2][SIZE-1]:
-        return True
+    for i in range(1, SIZE):
+        for j in random(1, SIZE):
+            if mas[i][j] == mas[i][j-1] or mas[i][j] == mas[i-1][j]:
+                return True
     return False
 
 # Инициализация констант (массива и счета)
@@ -303,6 +313,7 @@ def game_loop():
         is_mas_moved = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_game()
                 pygame.quit()
                 sys.exit(0)
             elif event.type == pygame.KEYDOWN:
@@ -327,11 +338,31 @@ def game_loop():
                 draw_interface(score, delta)
                 pygame.display.update()
 
+# Сохранение игры
+def save_game():
+    data = {
+        'user':  USERNAME,
+        'score': score,
+        'mas':   mas
+    }
+    with open("saved_game.txt", 'w') as outfile:
+        json.dump(data, outfile)
+
 
 if __name__ == "__main__":
     if SIZE < 4:
         exit()
-    init_const()
+    path = os.getcwd()
+    full_path = os.path.join(path, "saved_game.txt")
+    if "saved_game.txt" in os.listdir(path):
+        with open("saved_game.txt", 'r') as file:
+            data = json.load(file)
+        USERNAME = data['user']
+        score = data['score']
+        mas = data['mas']
+        os.remove(full_path)
+    else:
+        init_const()
 
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
