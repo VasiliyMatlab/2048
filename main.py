@@ -230,6 +230,30 @@ def draw_interface(score: int, delta = 0) -> None:
                 text_y = h + (SIZE_BLOCK-font_h)/2
                 screen.blit(text, (text_x, text_y))
 
+# Отрисовка конца игры
+def draw_game_over():
+    image = pygame.image.load('logo.png')
+    font = pygame.font.SysFont("stxingkai", 65)
+    text_game_over = font.render("Game over!", True, WHITE)
+    text_final_score = font.render(f"You scored {score}", True, WHITE)
+    best_score = PLAYERS_DB[0][1]
+    if score > best_score:
+        text = "New high score!"
+    else:
+        text = f"Recored is {best_score}"
+    text_record = font.render(text, True, WHITE)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit(0)
+        screen.fill(BLACK)
+        screen.blit(text_game_over, (220, 90))
+        screen.blit(text_final_score, (30, 250))
+        screen.blit(text_record, (30, 300))
+        screen.blit(pygame.transform.scale(image, (200, 200)), (10, 10))
+        pygame.display.update()
+
 
 if __name__ == "__main__":
     if SIZE < 4:
@@ -248,6 +272,7 @@ if __name__ == "__main__":
     pygame.display.update()
 
     while is_zero_in_mas(mas) or can_move(mas):
+    #while False:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -265,10 +290,13 @@ if __name__ == "__main__":
                 else:
                     continue
                 score += delta
-                empty = get_empty_list(mas)
-                random.shuffle(empty)
-                random_num = empty.pop()
-                x, y = get_index_from_number(random_num)
-                mas = insert_2_or_4(mas, x, y)
+                if is_zero_in_mas(mas):
+                    empty = get_empty_list(mas)
+                    random.shuffle(empty)
+                    random_num = empty.pop()
+                    x, y = get_index_from_number(random_num)
+                    mas = insert_2_or_4(mas, x, y)
                 draw_interface(score, delta)
                 pygame.display.update()
+    
+    draw_game_over()
