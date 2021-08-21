@@ -25,6 +25,7 @@ WIDTH = SIZE*SIZE_BLOCK + (SIZE+1)*MARGIN
 HEIGHT = WIDTH + SIZE_BLOCK
 TITLE_RECT = pygame.Rect(0,0, WIDTH, SIZE_BLOCK)
 PLAYERS_DB = get_best()
+USERNAME = None
 
 
 # Печать массива в терминал
@@ -150,7 +151,45 @@ def can_move(mas: list) -> bool:
                 return True
     return False
 
-#
+# Отрисовка экрана приветствия и ввода имени пользователя
+def draw_intro():
+    image = pygame.image.load('logo.png')
+    font = pygame.font.SysFont("stxingkai", 70)
+    text_welcome = font.render("Welcome!", True, WHITE)
+    name = "Enter your name"
+    is_entered_name = False
+
+    while not is_entered_name:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit(0)
+            elif event.type == pygame.KEYDOWN:
+                if event.unicode.isalpha():
+                    if name == "Enter your name":
+                        name = event.unicode
+                    elif len(name) < 10:
+                            name += event.unicode
+                elif event.key == pygame.K_BACKSPACE:
+                    if len(name) != 0:
+                        name = name[:-1]
+                elif event.key == pygame.K_RETURN:
+                    if len(name) > 2:
+                        global USERNAME
+                        USERNAME = name
+                        is_entered_name = True
+                        break
+
+        text_name = font.render(name, True, WHITE)
+        rect_name = text_name.get_rect()
+        rect_name.center = screen.get_rect().center
+        screen.blit(pygame.transform.scale(image, (200, 200)), (10, 10))
+        screen.blit(text_welcome, (230, 90))
+        screen.blit(text_name, rect_name)
+        pygame.display.update()
+        screen.fill(BLACK)
+
+# Отрисовка лучших игроков
 def draw_top_gamers():
     font_top = pygame.font.SysFont("simsum", 30)
     font_player = pygame.font.SysFont("simsum", 24)
@@ -203,6 +242,8 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("2048")
+
+    draw_intro()
     draw_interface(score)
     pygame.display.update()
 
