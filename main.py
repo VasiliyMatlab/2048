@@ -12,6 +12,7 @@ COLORS = {
     32: (255, 235, 128),
     64: (255, 235, 0)
 }
+ORANGE = (255, 127, 0)
 WHITE = (255, 255, 255)
 GRAY  = (130, 130, 130)
 BLACK = (0, 0, 0)
@@ -66,7 +67,8 @@ def insert_2_or_4(mas: list, x: int, y: int) -> list:
     return mas
 
 # Движение ячеек влево
-def move_left(mas: list) -> list:
+def move_left(mas: list) -> tuple:
+    delta = 0
     for row in mas:
         while 0 in row:
             row.remove(0)
@@ -76,12 +78,14 @@ def move_left(mas: list) -> list:
         for j in range(SIZE - 1):
             if mas[i][j] == mas[i][j+1] and mas[i][j] != 0:
                 mas[i][j] *= 2
+                delta += mas[i][j]
                 mas[i].pop(j+1)
                 mas[i].append(0)
-    return mas
+    return mas, delta
 
 # Движение ячеек вправо
-def move_right(mas: list) -> list:
+def move_right(mas: list) -> tuple:
+    delta = 0
     for row in mas:
         while 0 in row:
             row.remove(0)
@@ -91,12 +95,14 @@ def move_right(mas: list) -> list:
         for j in range(SIZE-1, 0, -1):
             if mas[i][j] == mas[i][j-1] and mas[i][j] != 0:
                 mas[i][j] *= 2
+                delta += mas[i][j]
                 mas[i].pop(j-1)
                 mas[i].insert(0, 0)
-    return mas
+    return mas, delta
 
 # Движение ячеек вверх
-def move_up(mas: list) -> list:
+def move_up(mas: list) -> tuple:
+    delta = 0
     for j in range(SIZE):
         col = list()
         for i in range(SIZE):
@@ -107,14 +113,16 @@ def move_up(mas: list) -> list:
         for i in range(SIZE - 1):
             if col[i] == col[i+1] and col[i] != 0:
                 col[i] *= 2
+                delta += col[i]
                 col.pop(i+1)
                 col.append(0)
         for i in range(SIZE):
             mas[i][j] = col[i]
-    return mas
+    return mas, delta
 
 # Движение ячеек вниз
-def move_down(mas: list) -> list:
+def move_down(mas: list) -> tuple:
+    delta = 0
     for j in range(SIZE):
         col = list()
         for i in range(SIZE):
@@ -125,11 +133,12 @@ def move_down(mas: list) -> list:
         for i in range(SIZE - 1, 0, -1):
             if col[i] == col[i-1] and col[i] != 0:
                 col[i] *= 2
+                delta += col[i]
                 col.pop(i-1)
                 col.insert(0, 0)
         for i in range(SIZE):
             mas[i][j] = col[i]
-    return mas
+    return mas, delta
 
 # Проверка условия, можно ли совершить какое-либо движение
 def can_move(mas: list) -> bool:
@@ -140,9 +149,14 @@ def can_move(mas: list) -> bool:
     return False
 
 # Отрисовка интерфейса
-def draw_interface():
+def draw_interface(score: int) -> None:
     pygame.draw.rect(screen, WHITE, TITLE_RECT)
     font = pygame.font.SysFont("stxingkai", 70)
+    font_score = pygame.font.SysFont("simsum", 48)
+    text_score = font_score.render("Score: ", True, ORANGE)
+    text_score_value = font_score.render(f"{score}", True, ORANGE)
+    screen.blit(text_score, (20, 35))
+    screen.blit(text_score_value, (250, 35))
     pretty_print(mas)
     for row in range(SIZE):
         for col in range(SIZE):
@@ -164,10 +178,11 @@ if __name__ == "__main__":
     mas[1][2] = 2
     mas[3][0] = 4
 
+    score = 0
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("2048")
-    draw_interface()
+    draw_interface(score)
     pygame.display.update()
 
     while is_zero_in_mas(mas) or can_move(mas):
@@ -176,20 +191,22 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit(0)
             elif event.type == pygame.KEYDOWN:
+                delta = 0
                 if event.key == pygame.K_LEFT:
-                    mas = move_left(mas)
+                    mas, delta = move_left(mas)
                 elif event.key == pygame.K_RIGHT:
-                    mas = move_right(mas)
+                    mas, delta = move_right(mas)
                 elif event.key == pygame.K_UP:
-                    mas = move_up(mas)
+                    mas, delta = move_up(mas)
                 elif event.key == pygame.K_DOWN:
-                    mas = move_down(mas)
+                    mas, delta = move_down(mas)
                 else:
                     continue
+                score += delta
                 empty = get_empty_list(mas)
                 random.shuffle(empty)
                 random_num = empty.pop()
                 x, y = get_index_from_number(random_num)
                 mas = insert_2_or_4(mas, x, y)
-                draw_interface()
+                draw_interface(score)
                 pygame.display.update()
