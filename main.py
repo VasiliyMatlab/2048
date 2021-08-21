@@ -1,6 +1,7 @@
 import sys
 import random
 import pygame
+import copy
 from database import get_best, insert_result
 
 
@@ -74,6 +75,7 @@ def insert_2_or_4(mas: list, x: int, y: int) -> list:
 
 # Движение ячеек влево
 def move_left(mas: list) -> tuple:
+    origin = copy.deepcopy(mas)
     delta = 0
     for row in mas:
         while 0 in row:
@@ -87,10 +89,11 @@ def move_left(mas: list) -> tuple:
                 delta += mas[i][j]
                 mas[i].pop(j+1)
                 mas[i].append(0)
-    return mas, delta
+    return mas, delta, origin != mas
 
 # Движение ячеек вправо
 def move_right(mas: list) -> tuple:
+    origin = copy.deepcopy(mas)
     delta = 0
     for row in mas:
         while 0 in row:
@@ -104,10 +107,11 @@ def move_right(mas: list) -> tuple:
                 delta += mas[i][j]
                 mas[i].pop(j-1)
                 mas[i].insert(0, 0)
-    return mas, delta
+    return mas, delta, origin != mas
 
 # Движение ячеек вверх
 def move_up(mas: list) -> tuple:
+    origin = copy.deepcopy(mas)
     delta = 0
     for j in range(SIZE):
         col = list()
@@ -124,10 +128,11 @@ def move_up(mas: list) -> tuple:
                 col.append(0)
         for i in range(SIZE):
             mas[i][j] = col[i]
-    return mas, delta
+    return mas, delta, origin != mas
 
 # Движение ячеек вниз
 def move_down(mas: list) -> tuple:
+    origin = copy.deepcopy(mas)
     delta = 0
     for j in range(SIZE):
         col = list()
@@ -144,7 +149,7 @@ def move_down(mas: list) -> tuple:
                 col.insert(0, 0)
         for i in range(SIZE):
             mas[i][j] = col[i]
-    return mas, delta
+    return mas, delta, origin != mas
 
 # Проверка условия, можно ли совершить какое-либо движение
 def can_move(mas: list) -> bool:
@@ -152,9 +157,11 @@ def can_move(mas: list) -> bool:
         for j in range(SIZE - 1):
             if mas[i][j] == mas[i][j+1] or mas[i][j] == mas[i+1][j]:
                 return True
+    if mas[SIZE-1][SIZE-1] == mas[SIZE-1][SIZE-2] or mas[SIZE-1][SIZE-1] == mas[SIZE-2][SIZE-1]:
+        return True
     return False
 
-#
+# Инициализация констант (массива и счета)
 def init_const():
     global score, mas
     mas = [[0]*SIZE for n in range(SIZE)]
@@ -286,13 +293,14 @@ def draw_game_over():
         pygame.display.update()
         screen.fill(BLACK)
 
-# 
+# Игровой цикл
 def game_loop():
     global score, mas
     draw_interface(score)
     pygame.display.update()
 
     while is_zero_in_mas(mas) or can_move(mas):
+        is_mas_moved = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -300,17 +308,17 @@ def game_loop():
             elif event.type == pygame.KEYDOWN:
                 delta = 0
                 if event.key == pygame.K_LEFT:
-                    mas, delta = move_left(mas)
+                    mas, delta, is_mas_moved = move_left(mas)
                 elif event.key == pygame.K_RIGHT:
-                    mas, delta = move_right(mas)
+                    mas, delta, is_mas_moved = move_right(mas)
                 elif event.key == pygame.K_UP:
-                    mas, delta = move_up(mas)
+                    mas, delta, is_mas_moved = move_up(mas)
                 elif event.key == pygame.K_DOWN:
-                    mas, delta = move_down(mas)
+                    mas, delta, is_mas_moved = move_down(mas)
                 else:
                     continue
                 score += delta
-                if is_zero_in_mas(mas):
+                if is_zero_in_mas(mas) and is_mas_moved:
                     empty = get_empty_list(mas)
                     random.shuffle(empty)
                     random_num = empty.pop()
@@ -329,6 +337,7 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("2048")
 
+    # Главный цикл программы
     while True:
         if USERNAME is None:
             draw_intro()
