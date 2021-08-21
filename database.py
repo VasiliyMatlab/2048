@@ -10,6 +10,13 @@ create table if not exists RECORDS (
 )
 ''')
 
+# Записать результат в базу данных
+def insert_result(name: str, score: int):
+    cursor.execute('''
+        insert into RECORDS values (?, ?)
+    ''', (name, score))
+    bd.commit()
+
 # Выдать 3 лучших результата неповторяющихся игроков из базы данных
 def get_best():
     cursor.execute('''

@@ -1,7 +1,7 @@
 import sys
 import random
 import pygame
-from database import get_best, cursor
+from database import get_best, insert_result
 
 
 COLORS = {
@@ -11,7 +11,10 @@ COLORS = {
     8:  (255, 255, 0),
     16: (255, 235, 255),
     32: (255, 235, 128),
-    64: (255, 235, 0)
+    64: (255, 235, 0),
+    128: (255, 215, 255),
+    256: (255, 215, 128),
+    512: (255, 215, 0)
 }
 ORANGE = (255, 127, 0)
 WHITE = (255, 255, 255)
@@ -151,6 +154,20 @@ def can_move(mas: list) -> bool:
                 return True
     return False
 
+#
+def init_const():
+    global score, mas
+    mas = [[0]*SIZE for n in range(SIZE)]
+    score = 0
+    empty = get_empty_list(mas)
+    random.shuffle(empty)
+    random_num1 = empty.pop()
+    x, y = get_index_from_number(random_num1)
+    mas = insert_2_or_4(mas, x, y)
+    random_num2 = empty.pop()
+    x, y = get_index_from_number(random_num2)
+    mas = insert_2_or_4(mas, x, y)
+
 # Отрисовка экрана приветствия и ввода имени пользователя
 def draw_intro():
     image = pygame.image.load('logo.png')
@@ -195,6 +212,7 @@ def draw_top_gamers():
     font_player = pygame.font.SysFont("simsum", 24)
     text_top = font_top.render("Best tries: ", True, ORANGE)
     screen.blit(text_top, (300, 5))
+    PLAYERS_DB = get_best()
     for index, player in enumerate(PLAYERS_DB):
         name, score = player
         s = f"{index+1}. {name} - {score}"
@@ -232,6 +250,7 @@ def draw_interface(score: int, delta = 0) -> None:
 
 # Отрисовка конца игры
 def draw_game_over():
+    global USERNAME
     image = pygame.image.load('logo.png')
     font = pygame.font.SysFont("stxingkai", 65)
     text_game_over = font.render("Game over!", True, WHITE)
@@ -242,37 +261,38 @@ def draw_game_over():
     else:
         text = f"Recored is {best_score}"
     text_record = font.render(text, True, WHITE)
-    while True:
+    insert_result(USERNAME, score)
+
+    make_dicision = False
+    while not make_dicision:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit(0)
-        screen.fill(BLACK)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    # restart game with name
+                    make_dicision = True
+                    init_const()
+                elif event.key == pygame.K_RETURN:
+                    # restart game without name
+                    USERNAME = None
+                    init_const()
+                    make_dicision = True
         screen.blit(text_game_over, (220, 90))
         screen.blit(text_final_score, (30, 250))
         screen.blit(text_record, (30, 300))
         screen.blit(pygame.transform.scale(image, (200, 200)), (10, 10))
         pygame.display.update()
+        screen.fill(BLACK)
 
-
-if __name__ == "__main__":
-    if SIZE < 4:
-        exit()
-    mas = [[0]*SIZE for n in range(SIZE)]
-    mas[1][2] = 2
-    mas[2][0] = 4
-
-    score = 0
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("2048")
-
-    draw_intro()
+# 
+def game_loop():
+    global score, mas
     draw_interface(score)
     pygame.display.update()
 
     while is_zero_in_mas(mas) or can_move(mas):
-    #while False:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -298,5 +318,19 @@ if __name__ == "__main__":
                     mas = insert_2_or_4(mas, x, y)
                 draw_interface(score, delta)
                 pygame.display.update()
-    
-    draw_game_over()
+
+
+if __name__ == "__main__":
+    if SIZE < 4:
+        exit()
+    init_const()
+
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("2048")
+
+    while True:
+        if USERNAME is None:
+            draw_intro()
+        game_loop()
+        draw_game_over()
