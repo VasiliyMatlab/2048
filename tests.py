@@ -4,8 +4,7 @@ from main import *
 class Test_2048(unittest.TestCase):
 
     def test_1(self):
-        self.assertIsNot(1, SIZE)
-        self.assertIsNot(2, SIZE)
+        self.assertLessEqual(4, SIZE)
 
     def test_2(self):
         i = list()

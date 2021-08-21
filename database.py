@@ -2,22 +2,20 @@ import sqlite3
 
 bd = sqlite3.connect("2048.sqlite")
 
-cur = bd.cursor()
-cur.execute('''
+cursor = bd.cursor()
+cursor.execute('''
 create table if not exists RECORDS (
     name text,
     score integer
 )
 ''')
 
-cur.execute('''
-SELECT name, max(score) score from RECORDS
-GROUP by name
-ORDER by score DESC
-limit 3
-''')
-
-result = cur.fetchall()
-print(result)
-
-cur.close()
+# Выдать 3 лучших результата неповторяющихся игроков из базы данных
+def get_best():
+    cursor.execute('''
+    SELECT name, max(score) score from RECORDS
+    GROUP by name
+    ORDER by score DESC
+    limit 3
+    ''')
+    return cursor.fetchall()

@@ -1,6 +1,7 @@
 import sys
 import random
 import pygame
+from database import get_best, cursor
 
 
 COLORS = {
@@ -23,6 +24,7 @@ MARGIN = 10
 WIDTH = SIZE*SIZE_BLOCK + (SIZE+1)*MARGIN
 HEIGHT = WIDTH + SIZE_BLOCK
 TITLE_RECT = pygame.Rect(0,0, WIDTH, SIZE_BLOCK)
+PLAYERS_DB = get_best()
 
 
 # Печать массива в терминал
@@ -148,6 +150,18 @@ def can_move(mas: list) -> bool:
                 return True
     return False
 
+#
+def draw_top_gamers():
+    font_top = pygame.font.SysFont("simsum", 30)
+    font_player = pygame.font.SysFont("simsum", 24)
+    text_top = font_top.render("Best tries: ", True, ORANGE)
+    screen.blit(text_top, (300, 5))
+    for index, player in enumerate(PLAYERS_DB):
+        name, score = player
+        s = f"{index+1}. {name} - {score}"
+        text_player = font_player.render(s, True, ORANGE)
+        screen.blit(text_player, (300, 30 + 30*index))
+
 # Отрисовка интерфейса
 def draw_interface(score: int, delta = 0) -> None:
     pygame.draw.rect(screen, WHITE, TITLE_RECT)
@@ -157,11 +171,12 @@ def draw_interface(score: int, delta = 0) -> None:
     text_score_value = font_score.render(f"{score}", True, ORANGE)
     font_delta = pygame.font.SysFont("simsum", 32)
     screen.blit(text_score, (20, 35))
-    screen.blit(text_score_value, (250, 35))
+    screen.blit(text_score_value, (150, 35))
     if delta > 0:
         text_delta = font_delta.render(f"+{delta}", True, ORANGE)
-        screen.blit(text_delta, (245, 65))
+        screen.blit(text_delta, (145, 65))
     pretty_print(mas)
+    draw_top_gamers()
     for row in range(SIZE):
         for col in range(SIZE):
             value = mas[row][col]
@@ -178,9 +193,11 @@ def draw_interface(score: int, delta = 0) -> None:
 
 
 if __name__ == "__main__":
+    if SIZE < 4:
+        exit()
     mas = [[0]*SIZE for n in range(SIZE)]
     mas[1][2] = 2
-    mas[3][0] = 4
+    mas[2][0] = 4
 
     score = 0
     pygame.init()
