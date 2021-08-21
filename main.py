@@ -149,14 +149,18 @@ def can_move(mas: list) -> bool:
     return False
 
 # Отрисовка интерфейса
-def draw_interface(score: int) -> None:
+def draw_interface(score: int, delta = 0) -> None:
     pygame.draw.rect(screen, WHITE, TITLE_RECT)
     font = pygame.font.SysFont("stxingkai", 70)
     font_score = pygame.font.SysFont("simsum", 48)
     text_score = font_score.render("Score: ", True, ORANGE)
     text_score_value = font_score.render(f"{score}", True, ORANGE)
+    font_delta = pygame.font.SysFont("simsum", 32)
     screen.blit(text_score, (20, 35))
     screen.blit(text_score_value, (250, 35))
+    if delta > 0:
+        text_delta = font_delta.render(f"+{delta}", True, ORANGE)
+        screen.blit(text_delta, (245, 65))
     pretty_print(mas)
     for row in range(SIZE):
         for col in range(SIZE):
@@ -208,5 +212,5 @@ if __name__ == "__main__":
                 random_num = empty.pop()
                 x, y = get_index_from_number(random_num)
                 mas = insert_2_or_4(mas, x, y)
-                draw_interface(score)
+                draw_interface(score, delta)
                 pygame.display.update()
